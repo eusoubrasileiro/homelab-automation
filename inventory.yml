@@ -1,0 +1,8 @@
+all:
+  hosts:
+    server1:
+      ansible_host: orangepi5
+    server2:
+      ansible_host: orangepi02
+    server3:
+      ansible_host: predator
