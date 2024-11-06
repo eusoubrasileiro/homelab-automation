@@ -1,0 +1,13 @@
+[Unit]
+Description=Gunicorn serves careas_apps website at port 8000 
+After=network.target
+
+[Service]
+User=andre
+Group=www-data
+WorkingDirectory={{flask_dir}}
+# authbind uneeded since port is above 1024
+ExecStart={{flask_dir}}/pyvenv/bin/gunicorn -w 5 --bind 0.0.0.0:8000 main:app
+
+[Install]
+WantedBy=multi-user.target

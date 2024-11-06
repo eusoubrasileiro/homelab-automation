@@ -1,0 +1,3 @@
+flask_dir: /opt/careas_apps_flask
+react_nginx: /usr/share/nginx/html/careas_apps
+listen_port: 80

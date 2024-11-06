@@ -1,0 +1,4 @@
+- name: Configure and install careas_apps website
+  hosts: server2
+  roles:
+    - site_careas

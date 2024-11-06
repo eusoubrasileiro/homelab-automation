@@ -1,0 +1,127 @@
+---
+- name: Update apt packages
+  ansible.builtin.apt:
+    update_cache: true
+  tags:
+    - apt 
+
+- name: Install needed packages
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - git
+    - python3-venv
+    - python3-pip
+    - unzip
+    - htop
+    - nginx
+  tags:
+    - apt
+
+- name: Create destination directory for unarchiving
+  ansible.builtin.file:
+    path: "/tmp/careas"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: "0755"
+
+- name: Download latest careas_apps release from GitHub extract build.tar.gz for frontend and backend
+  ansible.builtin.unarchive:
+    src: "https://github.com/eusoubrasileiro/careas_apps/releases/download/latest/build.tar.gz"
+    dest: "/tmp/careas"
+    remote_src: true
+    extra_opts: ['--strip-components=1', '--show-stored-names'] # removes the top 1 directories
+
+- name: Create nginx folder for frontend if not exists
+  ansible.builtin.file:
+    path: "{{ react_nginx }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: "0755"
+  tags: frontend
+
+- name: Move frontend files to nginx folder and remove 'build' folder
+  ansible.builtin.shell: |
+    cp -r /tmp/careas/build/* {{ react_nginx }}/
+  args:
+    executable: /bin/bash
+  tags: frontend
+
+- name: Create backend folder if not exists
+  ansible.builtin.file:
+    path: "{{ flask_dir }}"
+    state: directory
+    owner: andre
+    group: andre
+    mode: "0755"
+
+- name: Find all backend files in /tmp/careas/backend
+  ansible.builtin.find:
+    paths: "/tmp/careas/backend"
+    recurse: true
+    file_type: file
+  register: backend_files
+
+
+- name: Copy backend files to Flask directory
+  ansible.builtin.copy:
+    src: "{{ item.path }}"
+    dest: "{{ flask_dir }}/{{ item.path | basename }}"
+    owner: andre
+    group: andre
+    mode: "0755"
+    remote_src: true
+  loop: "{{ backend_files.files }}"
+
+
+- name: Install virtual environment and backend requirements
+  ansible.builtin.pip:
+    requirements: "{{ flask_dir }}/requirements.txt"
+    virtualenv: "{{ flask_dir }}/pyvenv"
+    virtualenv_command: "/usr/bin/python3 -m venv"
+
+- name: Install careas-poligonal in virtual environment
+  ansible.builtin.pip:
+    name: git+https://github.com/eusoubrasileiro/aidbag.git#subdirectory=anm/careas-pip
+    virtualenv: "{{ flask_dir }}/pyvenv"
+    virtualenv_site_packages: true
+    virtualenv_command: "/usr/bin/python3 -m venv"
+
+- name: Install Nginx configuration for careas_apps
+  ansible.builtin.template:
+    src: etc/nginx/sites-available/careas_apps_react.conf
+    dest: /etc/nginx/sites-available/careas_apps_react.conf
+    owner: www-data
+    group: www-data
+    mode: "0755"
+
+- name: Remove default Nginx config
+  ansible.builtin.file:
+    path: "/etc/nginx/sites-enabled/default"
+    state: absent
+
+- name: Enable Nginx configuration
+  ansible.builtin.command:
+    cmd: ln -sf /etc/nginx/sites-available/careas_apps_react.conf /etc/nginx/sites-enabled/careas_apps_react.conf
+
+- name: Install *.service files for systemd
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "/etc/systemd/system/{{ item | basename }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop: "{{ lookup('fileglob', role_path + '/templates/etc/systemd/system/*.service', wantlist=True) }}"
+
+- name: Enable and start Flask backend and Nginx services
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: true
+    state: restarted
+    daemon_reload: true
+  loop:
+    - careas_apps_backend
+    - nginx
