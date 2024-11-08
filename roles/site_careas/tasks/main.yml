@@ -92,7 +92,7 @@
 
 - name: Install Nginx configuration for careas_apps
   ansible.builtin.template:
-    src: etc/nginx/sites-available/careas_apps_react.conf
+    src: careas_apps_react.conf
     dest: /etc/nginx/sites-available/careas_apps_react.conf
     owner: www-data
     group: www-data
@@ -109,12 +109,11 @@
 
 - name: Install *.service files for systemd
   ansible.builtin.template:
-    src: "{{ item }}"
-    dest: "/etc/systemd/system/{{ item | basename }}"
+    src: careas_apps_backend.service
+    dest: /etc/systemd/system/careas_apps_backend.service
     owner: root
     group: root
     mode: "0644"
-  loop: "{{ lookup('fileglob', role_path + '/templates/etc/systemd/system/*.service', wantlist=True) }}"
 
 - name: Enable and start Flask backend and Nginx services
   ansible.builtin.systemd:

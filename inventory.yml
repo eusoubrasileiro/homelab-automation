@@ -6,3 +6,7 @@ all:
       ansible_host: orangepi02
     server3:
       ansible_host: predator
+  vars:
+    motion_nvr_server : orangepi5
+    zigbee2mqtt_broker_server : orangepi5
+    temper_app_server: orangepi5
