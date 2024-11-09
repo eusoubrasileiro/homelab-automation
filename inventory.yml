@@ -11,13 +11,22 @@ all:
     zigbee2mqtt_broker_server: orangepi5
     temper_app_server: orangepi5
     sites:  # LAN names need to be configured on OpenWRT
+      careas:
+        name: careas
+        hostnames: # this is a list of hostnames public or local to be used by nginx.conf template 
+        - careas.lan
+        - careas.xyz        
+        server: predator
       lanservers:
         name: lanservers
-        hostname: apps.lan
+        hostnames: 
+        - apps.lan
         server: orangepi5
       sermons_ipp:
         name: sermons_ipp
-        hostname: ipp-sermons.talvez.site
+        hostnames:
+        - ipp-sermons.talvez.site
+        - ipp.lan         
         server: predator
       # Uncomment and add more sites as needed
       # - name: time_wasted
