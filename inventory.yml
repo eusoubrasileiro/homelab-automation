@@ -7,6 +7,25 @@ all:
     server3:
       ansible_host: predator
   vars:
-    motion_nvr_server : orangepi5
-    zigbee2mqtt_broker_server : orangepi5
+    motion_nvr_server: orangepi5
+    zigbee2mqtt_broker_server: orangepi5
     temper_app_server: orangepi5
+    sites:  # LAN names need to be configured on OpenWRT
+      lanservers:
+        name: lanservers
+        hostname: apps.lan
+        server: orangepi5
+      sermons_ipp:
+        name: sermons_ipp
+        hostname: ipp-sermons.talvez.site
+        server: predator
+      # Uncomment and add more sites as needed
+      # - name: time_wasted
+      #   hostname: timewasted.lan
+      #   server: some_server
+      # - name: motion_nvr
+      #   hostname: nvr.lan
+      #   server: some_server
+      # - name: zigbee2mqtt
+      #   hostname: zigbee.lan
+      #   server: some_server

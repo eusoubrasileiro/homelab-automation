@@ -1,0 +1,82 @@
+---
+- name: Update apt packages
+  ansible.builtin.apt:
+    update_cache: true
+  tags:
+    - apt
+
+- name: Install needed packages
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - bindfs
+    - nginx
+  tags:
+    - apt
+
+- name: Create nfs_nginx directory under /srv
+  ansible.builtin.file:
+    path: "/srv/nfs_{{ site.name }}_nginx"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: "0755"
+
+# name of .mount file MUST match the path being mounted
+- name: Set up systemd mount unit for NFS sermons bindfs mount
+  ansible.builtin.template:
+    src: srv_nfs_nginx.service.j2
+    dest: "/etc/systemd/system/srv_nfs_{{ site.name }}_nginx.service"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Enable and start
+  ansible.builtin.systemd:
+    name: "srv_nfs_{{ site.name }}_nginx"
+    enabled: true
+    state: restarted
+    daemon_reload: true
+
+- name: Remove default Nginx config
+  ansible.builtin.file:
+    path: "/etc/nginx/sites-enabled/default"
+    state: absent
+
+# no index.html for this one since it's a ngix static shared folder
+
+# - name: Create folder
+#   ansible.builtin.file:
+#     path: "/var/www/html/{{ site.name }}/"
+#     state: directory
+#     owner: www-data
+#     group: www-data
+#     mode: "0755"
+
+# - name: Copy static index.html
+#   ansible.builtin.template:
+#     src: index.html
+#     dest: "/var/www/html/{{ site.name }}/index.html"
+#     owner: www-data
+#     group: www-data
+#     mode: "0755"
+
+- name: Configure Nginx
+  ansible.builtin.template:
+    src: site.conf
+    dest: "/etc/nginx/sites-available/{{ site.name }}.conf"
+    owner: www-data
+    group: www-data
+    mode: "0755"
+
+- name: Enable Nginx configuration
+  ansible.builtin.command:
+    cmd: "ln -sf /etc/nginx/sites-available/{{ site.name }}.conf /etc/nginx/sites-enabled/{{ site.name }}.conf"
+
+- name: Restart Nginx services
+  ansible.builtin.systemd:
+    name: nginx
+    enabled: true
+    state: restarted
+    daemon_reload: true

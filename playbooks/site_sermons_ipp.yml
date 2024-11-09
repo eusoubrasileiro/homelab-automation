@@ -1,0 +1,6 @@
+- name: Configure and install project website of ipp sermons
+  hosts: server3
+  become: true  # Elevates privileges for all tasks in this playbook
+  become_user: root  # Specifies to run tasks as root
+  roles:
+    - site_sermons_ipp

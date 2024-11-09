@@ -1,0 +1,11 @@
+[Unit]
+Description=Bindfs mount for Nginx sermons with www-data permissions
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bindfs -u www-data -g www-data /mnt/shared/ipp "/srv/nfs_{{ site.name }}_nginx"
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
