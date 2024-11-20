@@ -3,44 +3,27 @@
     name: "{{ item }}"
     state: present
   loop:
-    - ntfs-3g
-    - fuse3    
     - nfs-kernel-server
   become: true
 
-# fstab to add
-# /dev/sda1 /mnt/motion ext4 defaults 0 0
-# UUID=5D2B1A0447C0214A /mnt/shared ntfs-3g uid=andre,gid=andre,umask=0022 0 2
-- name: Mount Usb HDD SDA1 ext4 400 GB /mnt/motion for MOTION NVR
+- name: Mount Ext Usb HDD 500 GB ext4 for /mnt/motion for MOTION NVR
   ansible.posix.mount:
     path: /mnt/motion
-    src: /dev/sda1
+    src: UUID=f534bea8-7af7-4f71-8cd8-5f1103ace7c5
     fstype: ext4
     opts: defaults
     state: mounted
   become: true
 
-# ntfs (from ntfs-3g) doesn't support change ownership or whatever since it comes from windows
-- name: Mount Ext Usb HDD SDA2 ntfs 196GB /mnt/shared for 1st Network Share
+- name: Mount Ext Usb HDD 640GB ext4 Network Share
   ansible.posix.mount:
     path: /mnt/shared
-    src: UUID=5D2B1A0447C0214A
-    fstype: ntfs
-    state: mounted
-  become: true
-
-- name: Mount Usb HDD SDB 1 ext4 465 GB /mnt/motion for 2nd Network Share
-  ansible.posix.mount:
-    path: /mnt/shared2
-    src: /dev/sdb1
+    src: UUID=083403ad-e6db-43fd-a2fc-0bf50640ed0e
     fstype: ext4
     opts: defaults
     state: mounted
   become: true
 
-# /mnt/shared is NTFS-3g so must be accessed as root to rw
-# /mnt/motion is mounted by user 1001 (andre is 10001 since 1000 is orangepi)
-# hence must access as 1001 to have rw access
 - name: Configure NFS exports  
   lineinfile:
     path: /etc/exports
@@ -49,9 +32,8 @@
     state: present
     regexp: "^{{ item.line }}$"
   loop:
-    - { line: "/mnt/shared *(rw,sync,no_root_squash)" }
-    - { line: "/mnt/motion *(rw,sync,all_squash,no_subtree_check,anonuid=1001,anongid=1001)" }
-    - { line: "/mnt/shared2 *(rw,sync,all_squash,no_subtree_check,anonuid=1001,anongid=1001)" }
+    - { line: "/mnt/shared *(rw,sync,no_root_squash,no_subtree_check)" }
+    - { line: "/mnt/motion *(rw,sync,no_root_squash,no_subtree_check)" }    
   become: true
 
 - name: restart nfs server  
@@ -59,13 +41,4 @@
     name: nfs-server
     state: restarted
   become: true
-
-# add user/passwd to samba share, workgroup is the domain (default)
-# sudo smbpasswd -a andre
-# append to /etc/samba/smb.conf
-# [shared]
-# path = /mnt/shared
-# valid users = andre
-# read only = no
-
-
+  
