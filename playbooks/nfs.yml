@@ -1,4 +1,4 @@
 - name: Configure NFS Server
-  hosts: server2
+  hosts: server3 # only orangepi5 and predator have usb 3.0 ports 
   roles:
     - nfs_server
