@@ -15,10 +15,10 @@
     state: mounted
   become: true
 
-- name: Mount Ext Usb HDD 640GB ext4 Network Share
+- name: Mount Ext Usb HDD 500GB ext4 Network Share
   ansible.posix.mount:
     path: /mnt/shared
-    src: UUID=083403ad-e6db-43fd-a2fc-0bf50640ed0e
+    src: UUID=a4834d8b-70a8-4e74-bbce-2484c824d94a
     fstype: ext4
     opts: defaults
     state: mounted
