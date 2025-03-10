@@ -15,7 +15,7 @@ all:
         name: careas
         hostnames: # this is a list of hostnames public or local to be used by nginx.conf template 
         - careas.lan
-        - careas.xyz        
+        - careas.talvez.site        
         server: predator
       lanservers:
         name: lanservers
