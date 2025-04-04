@@ -1,12 +1,17 @@
-- name: Install needed packages
-  apt:
-    name: "{{ item }}"
-    state: present
+
+- name: Ensure mount folders exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
   loop:
-    - nfs-kernel-server
+    - /mnt/motion
+    - /mnt/shared
   become: true
 
-- name: Mount Ext Usb HDD 500 GB ext4 for /mnt/motion for MOTION NVR
+- name: Mount Ext USB HDD 500 GB to /mnt/motion
   ansible.posix.mount:
     path: /mnt/motion
     src: UUID=f534bea8-7af7-4f71-8cd8-5f1103ace7c5
@@ -15,7 +20,7 @@
     state: mounted
   become: true
 
-- name: Mount Ext Usb HDD 500GB ext4 Network Share
+- name: Mount Ext USB HDD 500 GB to /mnt/shared
   ansible.posix.mount:
     path: /mnt/shared
     src: UUID=a4834d8b-70a8-4e74-bbce-2484c824d94a
@@ -24,21 +29,51 @@
     state: mounted
   become: true
 
-- name: Configure NFS exports  
-  lineinfile:
-    path: /etc/exports
-    line: "{{ item.line }}"
-    insertafter: EOF
-    state: present
-    regexp: "^{{ item.line }}$"
-  loop:
-    - { line: "/mnt/shared *(rw,sync,no_root_squash,no_subtree_check)" }
-    - { line: "/mnt/motion *(rw,sync,no_root_squash,no_subtree_check)" }    
+- name: Remove docker
+  apt:
+    name: docker-ce
+    state: absent
   become: true
 
-- name: restart nfs server  
-  service:
-    name: nfs-server
-    state: restarted
+- name: Remove docker-ce-cli
+  apt:
+    name: docker-ce-cli
+    state: absent
   become: true
-  
+
+- name: Install docker from get.docker.com
+  shell: curl -fsSL https://get.docker.com | bash
+  become: true
+
+- name: Create docker network
+  shell: docker network create public_network
+  become: true
+
+- name: remove default netplan config *.yaml
+  file:
+    path: /etc/netplan/*.yaml
+    state: absent
+  become: true
+
+- name: Configure static IP using netplan
+  copy:
+    dest: /etc/netplan/01-static.yaml
+    content: |
+      network:
+        version: 2
+        renderer: networkd
+        ethernets:
+          eth0:
+            dhcp4: false
+            addresses:
+              - 192.168.0.35/24      
+            gateway4: 192.168.0.1      
+            nameservers:
+              addresses:
+                - 192.168.0.1
+                - 8.8.8.8
+                - 1.1.1.1
+
+- name: Apply netplan
+  command: netplan apply
+  become: true

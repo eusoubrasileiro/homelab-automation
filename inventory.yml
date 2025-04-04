@@ -1,11 +1,12 @@
 all:
   hosts:
-    server1:
+    orangepi5:
       ansible_host: orangepi5
-    server2:
+      ansible_host: 192.168.0.xxx # this is DHCP IP address on first boot (look at routers table)
+      ansible_user: root
+      ansible_ssh_pass: orangepi
+    orangepi02:
       ansible_host: orangepi02
-    server3:
-      ansible_host: predator
   vars:
     motion_nvr_server: orangepi5
     zigbee2mqtt_broker_server: orangepi5
