@@ -1,0 +1,62 @@
+services:
+  # n8n service
+  n8n:
+    image: n8nio/n8n:1.84.0 # use dockerhub image architecture arm64 agnostic
+    environment:  
+      # Base environment variables
+      WEBHOOK_URL: "https://auto.talvez.site"
+      N8N_EDITOR_BASE_URL: "https://auto.talvez.site"
+      N8N_HOST: "auto.talvez.site"
+      N8N_PORT: 5678
+      NODE_ENV: "production"
+      N8N_PROTOCOL: "https"
+      N8N_TRUST_PROXY: "true"
+      N8N_RUNNERS_ENABLED: "true"
+      N8N_REINSTALL_MISSING_PACKAGES: "true"
+      N8N_COMMUNITY_PACKAGES_ENABLED: "true"
+      N8N_NODE_PATH: "/home/node/.n8n/nodes"
+      N8N_BASIC_AUTH_ACTIVE: "true"                # Enable Basic Auth
+      N8N_BASIC_AUTH_USER: "ainbidev"              # Basic Auth Username
+      N8N_BASIC_AUTH_PASSWORD: "4!nb1deV"          # Basic Auth Password
+      DB_TYPE: "postgresdb"                        # Use PostgreSQL
+      DB_POSTGRESDB_HOST: "postgresql"             # PostgreSQL host name
+      DB_POSTGRESDB_PORT: 5432                     # PostgreSQL default port
+      # Database n8n
+      # must be created with pgadmin before installing this stack
+      DB_POSTGRESDB_DATABASE: "n8n"                # PostgreSQL database name
+      DB_POSTGRESDB_USER: "ainbidev"               # PostgreSQL username
+      DB_POSTGRESDB_PASSWORD: "4!nb1deV"    # PostgreSQL password
+      NODE_FUNCTION_ALLOW_EXTERNAL : "*"
+      NODE_FUNCTION_ALLOW_BUILTIN : "*"
+      EXECUTIONS_DATA_PRUNE: "true"
+      EXECUTIONS_DATA_MAX_AGE: 336 # 2 semanas
+      # Timezone
+      GENERIC_TIMEZONE: "America/Sao_Paulo"
+      TZ: America/Sao_Paulo
+    # Configura o Modo de Deploy      
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - network_public
+    ports:
+      - target: 5678
+        published: 5678
+        mode: host
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          cpus: '6.0'
+          memory: 4096M
+
+# Define Docker volumes
+volumes:
+  n8n_data:
+
+networks:
+  network_public:
+    external: true

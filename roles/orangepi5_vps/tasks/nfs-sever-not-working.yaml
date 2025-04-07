@@ -1,0 +1,33 @@
+
+# NOT WORKING!!! AT ALL!!! maybe docker swarm not supported
+
+
+version: "3.9"
+services:
+  nfs-server-motion:
+    image: mekayelanik/nfs-server-alpine:latest
+    container_name: nfs-server-motion
+    environment:
+      - TZ=America/Sao_Paulo
+      - ALLOWED_CLIENT=192.168.1.0/24
+      - NUMBER_OF_SHARES=1
+      - NFS_EXPORT_1=/motion
+    cap_add:
+      - SYS_ADMIN
+    volumes:
+      - /mnt/motion:/data/motion
+    restart: unless-stopped
+
+  nfs-server-shared:
+    image: mekayelanik/nfs-server-alpine:latest
+    container_name: nfs-server-shared
+    environment:
+      - TZ=America/Sao_Paulo
+      - ALLOWED_CLIENT=192.168.1.0/24
+      - NUMBER_OF_SHARES=1
+      - NFS_EXPORT_1=/shared
+    cap_add:
+      - SYS_ADMIN
+    volumes:
+      - /mnt/shared:/data/shared
+    restart: unless-stopped

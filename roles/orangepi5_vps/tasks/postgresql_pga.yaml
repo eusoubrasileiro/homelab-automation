@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  postgresql:
+    image: arm64v8/postgres:17
+    environment:
+      POSTGRES_USER: ainbidev
+      POSTGRES_PASSWORD: 4!nb1deV
+    volumes:
+      - postgre_sql:/var/lib/postgresql/data
+    ports:
+      - target: 5432
+        published: 5432
+        mode: host
+    networks:
+      - network_public
+    restart: unless-stopped
+
+  pgadmin:
+    image: ecsfin/pgadmin:8.10-arm64
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ainbidev@proton.me
+      PGADMIN_DEFAULT_PASSWORD: 4!nb1deV
+      PGADMIN_LISTEN_PORT: 4000
+    volumes:
+      - postgre_sql_pgadmin:/var/lib/pgadmin
+    ports:
+      - target: 4000
+        published: 4000
+        mode: host
+    networks:
+      - network_public
+    restart: unless-stopped
+
+volumes:
+  postgre_sql:
+  postgre_sql_pgadmin:
+
+networks:
+  network_public:
+    external: true
