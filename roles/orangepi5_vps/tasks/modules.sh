@@ -14,4 +14,5 @@ npm install \
   n8n-nodes-elevenlabs \
   n8n-nodes-firecrawl-v1 \
   n8n-nodes-globals \
-  @devlikeapro/n8n-nodes-chatwoot
+  @devlikeapro/n8n-nodes-chatwoot \
+  n8n-nodes-*.tgz

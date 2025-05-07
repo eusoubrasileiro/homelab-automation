@@ -1,13 +1,17 @@
 services:
   # n8n service
   n8n:
-    image: n8nio/n8n:1.84.0 # use dockerhub image architecture arm64 agnostic
+    image: n8nio/n8n:1.91.2 # use dockerhub image architecture arm64 agnostic
     environment:  
       # Base environment variables
       WEBHOOK_URL: "https://auto.talvez.site"
       N8N_EDITOR_BASE_URL: "https://auto.talvez.site"
       N8N_HOST: "auto.talvez.site"
       N8N_PORT: 5678
+      # to avoid memory issues like stack heap javascript
+      NODE_OPTIONS: "--max-old-space-size=4096"
+      # to track more errors
+      N8N_REPORTING_ENABLED: "true"
       NODE_ENV: "production"
       N8N_PROTOCOL: "https"
       N8N_TRUST_PROXY: "true"
@@ -50,8 +54,9 @@ services:
           - node.role == manager
       resources:
         limits:
-          cpus: '6.0'
-          memory: 4096M
+          # giving everything to n8n
+          cpus: '8.0'
+          memory: '8192MB'
 
 # Define Docker volumes
 volumes:
