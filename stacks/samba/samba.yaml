@@ -16,7 +16,6 @@ services:
       CONFIG_FILE: /config/config.yaml   # tell the image where our config is
       SAMBA_LOG_LEVEL: "1"
       WSDD2_ENABLE: "1"
-      SAMBA_GUEST: true
     ports:
       - "445:445/tcp"
     volumes:
