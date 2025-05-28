@@ -2,7 +2,7 @@ version: "3.8"
 
 configs:
   samba_cfg:               # 👈 holds the YAML below
-    file: ./config.yml     #   (must live next to this compose file)
+    file: ./config.yaml     #   (must live next to this compose file)
 
 volumes:
   samba_state:             # keeps Samba tdbs, recycle-bin, etc.
@@ -14,7 +14,7 @@ services:
     hostname: homeschool-smb
     environment:
       TZ: America/Sao_Paulo
-      CONFIG_FILE: /config/config.yml   # tell the image where our config is
+      CONFIG_FILE: /config/config.yaml   # tell the image where our config is
       SAMBA_LOG_LEVEL: "1"
       WSDD2_ENABLE: "1"
     ports:
