@@ -1,0 +1,40 @@
+version: "3.8"
+
+configs:
+  samba_cfg:               # 👈 holds the YAML below
+    file: ./config.yml     #   (must live next to this compose file)
+
+volumes:
+  samba_state:             # keeps Samba tdbs, recycle-bin, etc.
+    driver: local
+
+services:
+  samba:
+    image: crazymax/samba:latest
+    hostname: homeschool-smb
+    environment:
+      TZ: America/Sao_Paulo
+      CONFIG_FILE: /config/config.yml   # tell the image where our config is
+      SAMBA_LOG_LEVEL: "1"
+      WSDD2_ENABLE: "1"
+    ports:
+      - "445:445/tcp"
+    volumes:
+      - samba_state:/data              # persistent state
+      - /mnt/shared/hs:/samba/homeschooling:rw
+    configs:
+      - source: samba_cfg
+        target: /config/config.yaml     # read-only in the container
+        mode: 0444
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.enable=false"       # keep Traefik from inspecting it

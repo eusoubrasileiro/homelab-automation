@@ -1,0 +1,19 @@
+# ‼️ No “auth:” section – that switches Samba into guest-only mode.
+
+global:
+  - "map to guest = Bad User"      # unknown users become ‘guest’
+  - "guest account = nobody"       # default is OK; explicit for clarity
+
+share:
+  - name: homeschooling            # shows as \\homeschool-smb\homeschooling
+    path: /samba/hs
+    browsable: yes
+    guestok: yes                   # allow anonymous access
+    readonly: no                   # read-write
+    recycle: yes
+    # Make every file show up on the host as UID/GID 1000 (your normal user)
+    extra:
+      - "force user = 1000"
+      - "force group = 1000"
+      - "create mask = 0664"
+      - "directory mask = 0775"
