@@ -1,19 +1,18 @@
-# ‼️ No “auth:” section – that switches Samba into guest-only mode.
-
 global:
+  - "server role = standalone server"
   - "map to guest = Bad User"
   - "guest account = nobody"
-  - "server role = standalone server"
+  - "host msdfs = no"          # hides the DFS hostname warning
   - "log level = 1"
 
 share:
   - name: homeschooling
-    path: /samba/homeschooling
+    path: /samba/homeschooling  # MUST match the mount
     browsable: yes
     readonly: no
     guestok: yes
-    guestonly: yes          # synonym for ‘only guest’; blocks real users
-    # Make everything appear as UID/GID 1000 on the host:
+    guestonly: yes
+    recycle: yes
     extra:
       - "force user = 1000"
       - "force group = 1000"
