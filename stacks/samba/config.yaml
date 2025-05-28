@@ -1,18 +1,17 @@
+# ‼️ No “auth:” section – that switches Samba into guest-only mode.
+
 global:
-  - "server role = standalone server"
-  - "map to guest = Bad User"
-  - "guest account = nobody"
-  - "host msdfs = no"          # hides the DFS hostname warning
-  - "log level = 1"
+  - "map to guest = Bad User"      # unknown users become ‘guest’
+  - "guest account = nobody"       # default is OK; explicit for clarity
 
 share:
-  - name: homeschooling
-    path: /samba/homeschooling  # MUST match the mount
+  - name: homeschooling            # shows as \\homeschool-smb\homeschooling
+    path: /samba/homeschooling
     browsable: yes
-    readonly: no
-    guestok: yes
-    guestonly: yes
+    guestok: yes                   # allow anonymous access
+    readonly: no                   # read-write
     recycle: yes
+    # Make every file show up on the host as UID/GID 1000 (your normal user)
     extra:
       - "force user = 1000"
       - "force group = 1000"
