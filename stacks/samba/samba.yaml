@@ -6,17 +6,17 @@ configs:
 
 volumes:
   samba_state:             # keeps Samba tdbs, recycle-bin, etc.
-    driver: local
 
 services:
   samba:
     image: crazymax/samba:latest
-    hostname: homeschool-smb
+    hostname: orangepi5
     environment:
       TZ: America/Sao_Paulo
       CONFIG_FILE: /config/config.yaml   # tell the image where our config is
       SAMBA_LOG_LEVEL: "1"
       WSDD2_ENABLE: "1"
+      SAMBA_GUEST: true
     ports:
       - "445:445/tcp"
     volumes:
