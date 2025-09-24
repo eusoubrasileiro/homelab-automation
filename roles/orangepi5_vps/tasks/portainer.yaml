@@ -10,11 +10,12 @@ services:
     deploy:
       mode: global
       placement:
-        constraints: [node.platform.os == linux]
+        constraints: [node.role == manager]
+    networks: [network_public]
 
   portainer:
     image: portainer/portainer-ce:2.27.2
-    command: -H tcp://tasks.agent:9001 --tlsskipverify  # Use Portainer Agent for communication
+    command: -H tcp://tasks.agent:9001 --tlsskipverify
     volumes:
       - portainer_data:/data
     deploy:
@@ -22,12 +23,30 @@ services:
       replicas: 1
       placement:
         constraints: [node.role == manager]
-    ports:
-      - target: 9000
-        published: 9000
-        mode: host
+    networks: [network_public]
+
+  cloudflared:
+    image: cloudflare/cloudflared:2025.9.1
+    # Either pass the token via env:
+    environment:
+      - TUNNEL_TOKEN=eyJhIjoiZjk5NmFjMWVkZjU3ZjAzYjRjN2RkNzNmZjVlMjViYTEiLCJ0IjoiNjA4NTQ1N2YtYTc5NS00NGQ3LWI3ZmEtZmExN2UxNjg0ZTgwIiwicyI6Ik1HTmtaVGswTldVdFpqaGxZUzAwWTJVNExXRTJOemd0TmpZNU5qUXdNemhpTWpoaSJ9
+    # or via secrets (recommended for Swarm):
+    # secrets: [cf_token]
+    command: tunnel --no-autoupdate run
+    networks: [network_public]
+
+networks:
+  network_public:
+    external: true
+    attachable: true
+    name: network_public
 
 volumes:
   portainer_data:
     external: true
     name: portainer_data
+
+#secrets:
+#  cf_token:
+#    external: true
+#    name: cf_tunnel_token
