@@ -27,4 +27,20 @@ docker stack deploy --prune --resolve-image always -c portainer.yaml portainer
 
 ### Install cloudflared for DNS and Tunnel
 
-From Cloudflare site. Zero Trust->Networks->Tunnels get the script curl etc For arm64-bit
+The cloudflared docker container is running on portainer.
+So only need to configure the routes to `network_public` using docker services|containers names. 
+
+From Cloudflare site. Zero Trust->Networks->Tunnels set the following 
+
+1. Route: portainer.talvez.site
+   Path: *
+   Service: http://portainer:9000
+
+2. Route: auto.talvez.site
+   Path: *
+   Service: http://n8n:5678
+
+3. Route: evo.talvez.site
+   Path: *
+   Service: http://evolution_api:8080
+
