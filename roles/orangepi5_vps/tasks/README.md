@@ -11,19 +11,26 @@ Download and install docker
 ```bash
 curl -fsSL https://get.docker.com | bash
 ```
-Set up docker swarm and public network
+Set up docker public network
 
 ```bash
-docker swarm init
-docker network create --driver=overlay --attachable network_public
+docker network create network_public
 ```
 
 Deploy portainer stack [official docs](https://docs.portainer.io/start/install-ce/server/swarm/linux)
 Copy from portainer/docker-stack-deploy.yaml (using nautilus) to vps server 
 
 ```bash
-docker stack deploy --prune --resolve-image always -c portainer.yaml portainer
-```do
+docker compose -f portainer.yaml up -d
+```
+
+### From portainer
+
+- 1. Deploy pgadmin postgresql stack (custom Arm64 images)
+- 2. Create the database "n8n" on postgresql service using pgadmin.
+- 3. Deploy the n8n image
+- 4. On the container 
+
 
 ### Install cloudflared for DNS and Tunnel
 
@@ -44,3 +51,4 @@ From Cloudflare site. Zero Trust->Networks->Tunnels set the following
    Path: *
    Service: http://evolution_api:8080
 
+**On domain main page SSL/TLS must be flexible.**

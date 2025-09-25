@@ -14,21 +14,10 @@ services:
       - redis_data:/data
     networks:
       - network_public
-    deploy:
-      placement:
-        constraints:
-          - node.role == manager          
-      resources:
-        limits:
-          cpus: "4"
-          memory: 4096M
 
 volumes:
   redis_data:
-    external: true
-    name: redis_data
 
 networks:
   network_public:
     external: true
-    name: network_public

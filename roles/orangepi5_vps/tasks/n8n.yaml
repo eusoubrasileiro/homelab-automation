@@ -8,7 +8,6 @@ services:
       N8N_EDITOR_BASE_URL: "https://auto.talvez.site/"
       N8N_HOST: "auto.talvez.site"
       N8N_PORT: 5678
-      N8N_PROXY_HOPS: "1" # cloudflare
       NODE_ENV: "production"
       N8N_PROTOCOL: "https"
       N8N_TRUST_PROXY: "true"
@@ -47,20 +46,11 @@ services:
       - n8n_data:/home/node/.n8n
     networks:
       - network_public
-    deploy:
-      mode: replicated
-      replicas: 1
-      placement:
-        constraints:
-          - node.role == manager
-      resources:
-        limits:
-          cpus: '4'
-          memory: 4096MB
+
   
   n8n_worker:
-    image: n8nio/n8n:1.112.5 
-    command: worker --concurrency=10
+    image: n8nio/n8n:1.112.5
+    command: worker --concurrency=5
     environment:  
       # Base environment variables
       WEBHOOK_URL: "https://auto.talvez.site/"
@@ -72,7 +62,7 @@ services:
       N8N_TRUST_PROXY: "true"
       N8N_RUNNERS_ENABLED: "true"
       N8N_REINSTALL_MISSING_PACKAGES: "true"
-      N8N_COMMUNITY_PACKAGES_ENABLED: "true"
+      N8N_COMMUNITY_PACKAGES_ENABLED: "true"            
       N8N_NODE_PATH: "/home/node/.n8n/nodes"
       N8N_BASIC_AUTH_ACTIVE: "true"                # Enable Basic Auth
       N8N_BASIC_AUTH_USER: "ainbidev"              # Basic Auth Username
@@ -81,7 +71,7 @@ services:
       DB_POSTGRESDB_HOST: "postgresql"             # PostgreSQL service name
       DB_POSTGRESDB_PORT: 5432                     # PostgreSQL default port
       # Database n8n
-      # must be created with pgadmin before installing this stack
+      # must be created with dbeaver before installing this stack
       DB_POSTGRESDB_DATABASE: "n8n"                # PostgreSQL database name
       DB_POSTGRESDB_USER: "ainbidev"               # PostgreSQL username
       DB_POSTGRESDB_PASSWORD: "4!nb1deV"    # PostgreSQL password
@@ -89,7 +79,7 @@ services:
       NODE_FUNCTION_ALLOW_BUILTIN : "*"
       # Queue mode and Redis
       OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS: "true"
-      N8N_ENCRYPTION_KEY: "r3djGX2vPoeL9zKL" # must be the same as the editor
+      N8N_ENCRYPTION_KEY: "r3djGX2vPoeL9zKL" # must be the same as the worker
       EXECUTIONS_MODE: "queue"
       QUEUE_BULL_REDIS_HOST: "redis"
       QUEUE_BULL_REDIS_PORT: 6379
@@ -104,23 +94,12 @@ services:
       - n8n_data:/home/node/.n8n
     networks:
       - network_public
-    deploy:
-      mode: replicated
-      replicas: 1
-      placement:
-        constraints:
-          - node.role == manager
-      resources:
-        limits:
-          cpus: '4'
-          memory: 4096MB
 
 
 networks:
   network_public:
     external: true
     name: network_public
-    attachable: true
 
 # Define Docker volumes
 volumes:

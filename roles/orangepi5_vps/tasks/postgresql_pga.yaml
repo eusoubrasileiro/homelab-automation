@@ -9,12 +9,10 @@ services:
     volumes:
       - postgre_sql:/var/lib/postgresql/data
     ports:
-      - target: 5432
-        published: 5432
-        mode: host
+      - 5432:5432
     networks:
       - network_public
-    restart: unless-stopped
+    restart: always
 
 volumes:
   postgre_sql:
